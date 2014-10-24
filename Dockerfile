@@ -2,7 +2,7 @@ FROM shimaore/debian
 MAINTAINER Stéphane Alnet <stephane@shimaore.net>
 
 # Install prereqs
-RUN apt-get --no-install-recommends -y install \
+RUN apt-get update && apt-get --no-install-recommends -y install \
   build-essential \
   ca-certificates \
   curl \
@@ -29,7 +29,7 @@ RUN chmod 755 /usr/local/bin/rebar
 RUN useradd -m couchdb
 USER couchdb
 WORKDIR /home/couchdb
-RUN git clone http://stephane.shimaore.net/debian/src/couchdb.git couchdb.git
+RUN git clone http://git-wip-us.apache.org/repos/asf/couchdb.git couchdb.git
 WORKDIR couchdb.git
 RUN git checkout -b build master
 # Expose nodes on external network interface
@@ -54,3 +54,4 @@ RUN apt-get autoremove -y
 USER couchdb
 RUN sed -i -e 's/^-name .*$/-name couchdb@server.local/' /usr/local/couchdb/etc/vm.args
 EXPOSE 5984 5986
+CMD ["/usr/local/couchdb/bin/couchdb","-d"]
