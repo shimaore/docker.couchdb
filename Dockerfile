@@ -30,6 +30,7 @@ RUN useradd -m couchdb
 USER couchdb
 WORKDIR /home/couchdb
 RUN git clone http://git-wip-us.apache.org/repos/asf/couchdb.git couchdb.git
+# RUN git clone https://github.com/apache/couchdb.git couchdb.git
 WORKDIR couchdb.git
 RUN git checkout -b build master
 # Expose nodes on external network interface
