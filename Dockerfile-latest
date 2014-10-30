@@ -1,3 +1,6 @@
+#
+# Build a CouchDB latest (1.7/2.x) Docker.io image
+#
 FROM shimaore/debian
 MAINTAINER Stéphane Alnet <stephane@shimaore.net>
 
