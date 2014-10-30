@@ -39,7 +39,11 @@ RUN make
 USER root
 RUN make install
 RUN git log > /usr/local/couchdb/.git.log
-RUN chown -R couchdb.couchdb /usr/local/couchdb/etc/
+RUN chown -R couchdb.couchdb \
+  /usr/local/couchdb/etc \
+  /usr/local/couchdb/var/log/couchdb \
+  /usr/local/couchdb/var/lib/couchdb \
+  /usr/local/couchdb/var/run/couchdb
 
 # Cleanup source
 WORKDIR ..
@@ -60,4 +64,4 @@ RUN apt-get purge -y \
 RUN apt-get autoremove -y
 USER couchdb
 EXPOSE 5984
-CMD ["/usr/local/couchdb/bin/couchdb","-d"]
+CMD ["/usr/local/couchdb/bin/couchdb","-n","-A","/usr/local/couchdb/etc","-o","/usr/local/couchdb/log/couch.log","-e","/usr/local/couchdb/log/error.log"]
