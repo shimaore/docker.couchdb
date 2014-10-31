@@ -32,24 +32,23 @@ WORKDIR couchdb.git
 RUN git checkout -b build 1.6.1
 # Build
 RUN ./bootstrap
-RUN ./configure --prefix /usr/local/couchdb
+RUN ./configure --prefix /opt/couchdb
 RUN make
 
 # Install
 USER root
+RUN mkdir -p /opt/couchdb
+RUN chown -R couchdb.couchdb /opt/couchdb
+USER couchdb
 RUN make install
-RUN git log > /usr/local/couchdb/.git.log
-RUN chown -R couchdb.couchdb \
-  /usr/local/couchdb/etc \
-  /usr/local/couchdb/var/log/couchdb \
-  /usr/local/couchdb/var/lib/couchdb \
-  /usr/local/couchdb/var/run/couchdb
+RUN git log > /opt/couchdb/.git.log
 
 # Cleanup source
 WORKDIR ..
 RUN rm -rf couchdb.git
 
 # Cleanup
+USER root
 RUN apt-get purge -y \
   build-essential \
   curl \
@@ -60,8 +59,9 @@ RUN apt-get purge -y \
   automake \
   autoconf-archive \
   pkg-config
-
 RUN apt-get autoremove -y
+
+# Finalize
 USER couchdb
 EXPOSE 5984
-CMD ["/usr/local/couchdb/bin/couchdb","-n","-A","/usr/local/couchdb/etc","-o","/usr/local/couchdb/log/couch.log","-e","/usr/local/couchdb/log/error.log"]
+CMD ["/opt/couchdb/bin/couchdb","-n","-A","/opt/couchdb/etc"]

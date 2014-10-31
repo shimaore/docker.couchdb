@@ -6,5 +6,8 @@ image:
 image-no-cache:
 	docker build --no-cache -t ${NAME} .
 
-push: image
+tests:
+	cd test && for t in ./*.sh; do $$t; done
+
+push: image tests
 	docker push ${NAME}

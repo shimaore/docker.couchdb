@@ -27,6 +27,8 @@ RUN ./bootstrap
 USER root
 RUN cp rebar /usr/local/bin/
 RUN chmod 755 /usr/local/bin/rebar
+RUN userdel rebar
+RUN rm -rf /home/rebar
 
 # Build couchdb
 RUN useradd -m couchdb
@@ -39,23 +41,32 @@ RUN git checkout -b build master
 # Expose nodes on external network interface
 RUN sed -i'' 's/bind_address = 127.0.0.1/bind_address = 0.0.0.0/' rel/overlay/etc/default.ini
 # Build
-RUN ./configure -p /usr/local/couchdb
+RUN ./configure -p /opt/couchdb
 RUN make
 
 # Install
 USER root
+RUN mkdir -p /opt/couchdb
+RUN chown -R couchdb.couchdb /opt/couchdb
+USER couchdb
 RUN make install
-RUN git log > /usr/local/couchdb/.git.log
-RUN chown -R couchdb.couchdb /usr/local/couchdb/etc/
+RUN git log > /opt/couchdb/.git.log
 
 # Cleanup source
 WORKDIR ..
 RUN rm -rf couchdb.git
 
 # Cleanup
-RUN apt-get purge -y build-essential curl git
+USER root
+RUN apt-get purge -y \
+  build-essential \
+  curl \
+  git \
+  erlang-reltool
 RUN apt-get autoremove -y
+
+# Finalize
 USER couchdb
-RUN sed -i -e 's/^-name .*$/-name couchdb@server.local/' /usr/local/couchdb/etc/vm.args
+RUN sed -i -e 's/^-name .*$/-name couchdb@server.local/' /opt/couchdb/etc/vm.args
 EXPOSE 5984 5986
-CMD ["/usr/local/couchdb/bin/couchdb","-d"]
+CMD ["/opt/couchdb/bin/couchdb","-d"]
