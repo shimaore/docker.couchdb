@@ -60,6 +60,8 @@ RUN apt-get purge -y \
   autoconf-archive \
   pkg-config
 RUN apt-get autoremove -y
+RUN apt-get clean
+RUN apt-get autoclean
 
 # Finalize
 USER couchdb
