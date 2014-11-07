@@ -6,22 +6,24 @@ MAINTAINER Stéphane Alnet <stephane@shimaore.net>
 
 # Install prereqs
 RUN apt-get update && apt-get --no-install-recommends -y install \
-  build-essential \
   ca-certificates \
-  curl \
   erlang-base-hipe \
   erlang-dev \
   erlang-nox \
-  git \
   libicu-dev \
-  libmozjs185-dev
+  libmozjs185-dev \
+  && apt-get clean
 RUN apt-get --no-install-recommends -y install \
   autoconf \
+  build-essential \
+  curl \
+  git \
   m4 \
   libtool \
   automake \
   autoconf-archive \
-  pkg-config
+  pkg-config \
+  && apt-get clean
 
 # Build couchdb
 RUN useradd -m couchdb
@@ -62,7 +64,6 @@ RUN apt-get purge -y \
   pkg-config
 RUN apt-get autoremove -y
 RUN apt-get clean
-RUN apt-get autoclean
 
 # Finalize
 USER couchdb
