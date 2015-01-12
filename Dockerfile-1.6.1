@@ -68,4 +68,5 @@ RUN apt-get clean
 # Finalize
 USER couchdb
 EXPOSE 5984
-CMD ["/opt/couchdb/bin/couchdb","-n","-A","/opt/couchdb/etc"]
+CMD ["/opt/couchdb/bin/couchdb"]
+RUN sed -i -e 's/^;bind_address.*$/bind_address = ::/' /opt/couchdb/etc/couchdb/local.ini
