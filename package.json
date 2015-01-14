@@ -1,0 +1,23 @@
+{
+  "name": "docker.couchdb",
+  "version": "1.6.1",
+  "description": "A Docker.io image for CouchDB",
+  "author": "Stéphane Alnet <stephane@shimaore.net> (http://stephane.shimaore.net/)",
+  "license": "Unlicense (http://unlicense.org/)",
+  "scripts": {
+    "test": "make tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/shimaore/docker.couchdb"
+  },
+  "keywords": [
+    "CouchDB",
+    "Docker.io"
+  ],
+  "bugs": {
+    "url": "https://github.com/shimaore/docker.couchdb/issues"
+  },
+  "homepage": "https://github.com/shimaore/docker.couchdb",
+  "private": true
+}

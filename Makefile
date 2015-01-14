@@ -1,5 +1,5 @@
 NAME=shimaore/couchdb
-TAG=1.6.1
+TAG=`jq -r .version package.json`
 
 image:
 	docker build -t ${NAME} .
