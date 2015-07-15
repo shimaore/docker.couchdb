@@ -1,6 +1,10 @@
 Configuration
 =============
 
+FIXME Replace the following notes with a startup script that will:
+- look for environment variables such as `COUCHDB_NAME`, `COUCHDB_PORT`, `COUCHDB_ADDRESS`;
+- create / update the proper startup scripts replacing those variables using e.g. a Mustache syntax.
+
 Erlang Name
 -----------
 
