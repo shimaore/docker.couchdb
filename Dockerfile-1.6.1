@@ -26,7 +26,7 @@ RUN apt-get --no-install-recommends -y install \
   && apt-get clean
 
 # Build couchdb
-RUN useradd -m couchdb
+RUN useradd -m -u 9999 couchdb
 USER couchdb
 WORKDIR /home/couchdb
 RUN git clone http://git-wip-us.apache.org/repos/asf/couchdb.git couchdb.git
