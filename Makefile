@@ -1,4 +1,4 @@
-NAME=shimaore/couchdb
+NAME=`jq -r .docker_name package.json`
 TAG=`jq -r .version package.json`
 DEBIAN_VERSION=`jq -r .debian.version package.json`
 
