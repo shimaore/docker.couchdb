@@ -45,7 +45,7 @@ RUN \
   cd /home/couchdb && \
   git clone http://git-wip-us.apache.org/repos/asf/couchdb.git couchdb.git && \
   cd couchdb.git && \
-  git checkout -b build master && \
+  git checkout -b build COUCHDB_COMMIT && \
 # Expose nodes on external network interface
   sed -i'' 's/bind_address = 127.0.0.1/bind_address = 0.0.0.0/' rel/overlay/etc/default.ini && \
 
