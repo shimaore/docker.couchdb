@@ -8,8 +8,8 @@ image: Dockerfile
 	docker tag -f ${NAME}:${TAG} ${REGISTRY}/${NAME}:${TAG}
 
 %: %.src
-	sed -e "s/DEBIAN_VERSION/${DEBIAN_VERSION}/" $< >$@
-	sed -e "s/COUCHDB_COMMIT/${COUCHDB_COMMIT}/" $< >$@
+	sed -e "s/DEBIAN_VERSION/${DEBIAN_VERSION}/" $< | \
+	sed -e "s/COUCHDB_COMMIT/${COUCHDB_COMMIT}/" >$@
 
 tests:
 	cd test && for t in ./*.sh; do $$t; done
