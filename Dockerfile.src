@@ -1,1 +1,80 @@
-Dockerfile-1.6.1
+#
+# Build a CouchDB latest (2.x) Docker.io image
+#
+FROM shimaore/debian:DEBIAN_VERSION
+MAINTAINER Stéphane Alnet <stephane@shimaore.net>
+ENV DEBIAN_FRONTEND noninteractive
+
+# Install prereqs
+RUN apt-get update && apt-get --no-install-recommends -y install \
+  build-essential \
+  ca-certificates \
+  curl \
+  erlang-base-hipe \
+  erlang-dev \
+  erlang-nox \
+  erlang-reltool
+  git \
+  libicu-dev \
+  libmozjs185-dev \
+  && \
+  apt-get clean && \
+
+# Build rebar
+  useradd -m rebar
+USER rebar
+RUN \
+  cd /home/rebar && \
+  curl -L https://github.com/rebar/rebar/archive/2.5.0.tar.gz | tar zxf - && \
+  cd /home/rebar/rebar-2.5.0 && \
+  ./bootstrap
+USER root
+RUN \
+  cp rebar /usr/local/bin/ && \
+  chmod 755 /usr/local/bin/rebar && \
+  userdel rebar && \
+  rm -rf /home/rebar \
+  && \
+
+# Build couchdb
+  useradd -m -u 9999 couchdb && \
+  mkdir -p /opt/couchdb && \
+  chown -R couchdb.couchdb /opt/couchdb
+USER couchdb
+RUN \
+  cd /home/couchdb && \
+  git clone http://git-wip-us.apache.org/repos/asf/couchdb.git couchdb.git && \
+  cd couchdb.git && \
+  git checkout -b build master && \
+# Expose nodes on external network interface
+  sed -i'' 's/bind_address = 127.0.0.1/bind_address = 0.0.0.0/' rel/overlay/etc/default.ini && \
+
+# Build
+  ./configure -p /opt/couchdb && \
+  make couch && \
+
+# Install
+USER couchdb
+  make install && \
+  git log | gzip > /opt/couchdb/.git.log.gz && \
+
+# Cleanup source
+  cd .. && \
+  rm -rf couchdb.git && \
+# Finalize
+  sed -i -e 's/^-name .*$/-name couchdb@server.local/' /opt/couchdb/etc/vm.args
+
+
+# Cleanup
+USER root
+RUN apt-get purge -y \
+  build-essential \
+  curl \
+  git \
+  erlang-reltool \
+  && \
+  apt-get autoremove -y
+
+USER couchdb
+EXPOSE 5984 5986
+CMD ["/opt/couchdb/bin/couchdb","-d"]
