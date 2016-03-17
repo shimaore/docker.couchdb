@@ -1,8 +1,9 @@
 #
-# Build a CouchDB latest (1.7/2.x) Docker.io image
+# Build a CouchDB latest (2.x) Docker.io image
 #
-FROM shimaore/debian
+FROM shimaore/debian:DEBIAN_VERSION
 MAINTAINER Stéphane Alnet <stephane@shimaore.net>
+ENV DEBIAN_FRONTEND noninteractive
 
 # Install prereqs
 RUN apt-get update && apt-get --no-install-recommends -y install \
@@ -12,50 +13,57 @@ RUN apt-get update && apt-get --no-install-recommends -y install \
   erlang-base-hipe \
   erlang-dev \
   erlang-nox \
+  erlang-reltool
   git \
   libicu-dev \
-  libmozjs185-dev
-RUN apt-get --no-install-recommends -y install \
-  erlang-reltool
+  libmozjs185-dev \
+  && \
+  apt-get clean && \
 
 # Build rebar
-RUN useradd -m rebar
+  useradd -m rebar
 USER rebar
-WORKDIR /home/rebar
-RUN curl -L https://github.com/rebar/rebar/archive/2.5.0.tar.gz | tar zxf -
-WORKDIR /home/rebar/rebar-2.5.0
-RUN ./bootstrap
+RUN \
+  cd /home/rebar && \
+  curl -L https://github.com/rebar/rebar/archive/2.5.0.tar.gz | tar zxf - && \
+  cd /home/rebar/rebar-2.5.0 && \
+  ./bootstrap
 USER root
-RUN cp rebar /usr/local/bin/
-RUN chmod 755 /usr/local/bin/rebar
-RUN userdel rebar
-RUN rm -rf /home/rebar
+RUN \
+  cp rebar /usr/local/bin/ && \
+  chmod 755 /usr/local/bin/rebar && \
+  userdel rebar && \
+  rm -rf /home/rebar \
+  && \
 
 # Build couchdb
-RUN useradd -m -u 9999 couchdb
+  useradd -m -u 9999 couchdb && \
+  mkdir -p /opt/couchdb && \
+  chown -R couchdb.couchdb /opt/couchdb
 USER couchdb
-WORKDIR /home/couchdb
-RUN git clone http://git-wip-us.apache.org/repos/asf/couchdb.git couchdb.git
-# RUN git clone https://github.com/apache/couchdb.git couchdb.git
-WORKDIR couchdb.git
-RUN git checkout -b build master
+RUN \
+  cd /home/couchdb && \
+  git clone http://git-wip-us.apache.org/repos/asf/couchdb.git couchdb.git && \
+  cd couchdb.git && \
+  git checkout -b build master && \
 # Expose nodes on external network interface
-RUN sed -i'' 's/bind_address = 127.0.0.1/bind_address = 0.0.0.0/' rel/overlay/etc/default.ini
+  sed -i'' 's/bind_address = 127.0.0.1/bind_address = 0.0.0.0/' rel/overlay/etc/default.ini && \
+
 # Build
-RUN ./configure -p /opt/couchdb
-RUN make
+  ./configure -p /opt/couchdb && \
+  make couch && \
 
 # Install
-USER root
-RUN mkdir -p /opt/couchdb
-RUN chown -R couchdb.couchdb /opt/couchdb
 USER couchdb
-RUN make install
-RUN git log > /opt/couchdb/.git.log
+  make install && \
+  git log | gzip > /opt/couchdb/.git.log.gz && \
 
 # Cleanup source
-WORKDIR ..
-RUN rm -rf couchdb.git
+  cd .. && \
+  rm -rf couchdb.git && \
+# Finalize
+  sed -i -e 's/^-name .*$/-name couchdb@server.local/' /opt/couchdb/etc/vm.args
+
 
 # Cleanup
 USER root
@@ -63,11 +71,10 @@ RUN apt-get purge -y \
   build-essential \
   curl \
   git \
-  erlang-reltool
-RUN apt-get autoremove -y
+  erlang-reltool \
+  && \
+  apt-get autoremove -y
 
-# Finalize
 USER couchdb
-RUN sed -i -e 's/^-name .*$/-name couchdb@server.local/' /opt/couchdb/etc/vm.args
 EXPOSE 5984 5986
 CMD ["/opt/couchdb/bin/couchdb","-d"]
