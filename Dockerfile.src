@@ -29,6 +29,7 @@ RUN \
   cd /home/rebar/rebar-2.5.0 && \
   ./bootstrap
 USER root
+WORKDIR /home/rebar/rebar-2.5.0
 RUN \
   cp rebar /usr/local/bin/ && \
   chmod 755 /usr/local/bin/rebar && \
@@ -54,7 +55,6 @@ RUN \
   make couch && \
 
 # Install
-USER couchdb
   make install && \
 
 # Cleanup source
