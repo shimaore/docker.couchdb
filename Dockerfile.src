@@ -56,7 +56,6 @@ RUN \
 # Install
 USER couchdb
   make install && \
-  git log | gzip > /opt/couchdb/.git.log.gz && \
 
 # Cleanup source
   cd .. && \
