@@ -6,7 +6,7 @@
     "version": "2.0.6"
   },
   "couchdb": {
-    "commit": "26c390aaa6498c6f12b22675f6858a5762a9"
+    "commit": "3f7a26c390aaa6498c6f12b22675f6858a5762a9"
   },
   "description": "A Docker.io image for CouchDB",
   "author": "Stéphane Alnet <stephane@shimaore.net> (http://stephane.shimaore.net/)",

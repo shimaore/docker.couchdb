@@ -17,6 +17,8 @@ RUN apt-get update && apt-get --no-install-recommends -y install \
   git \
   libicu-dev \
   libmozjs185-dev \
+  nodejs-legacy \
+  npm \
   && \
   apt-get clean && \
 
@@ -29,9 +31,8 @@ RUN \
   cd /home/rebar/rebar-2.5.0 && \
   ./bootstrap
 USER root
-WORKDIR /home/rebar/rebar-2.5.0
 RUN \
-  cp rebar /usr/local/bin/ && \
+  cp /home/rebar/rebar-2.5.0/rebar /usr/local/bin/ && \
   chmod 755 /usr/local/bin/rebar && \
   userdel rebar && \
   rm -rf /home/rebar \
@@ -46,12 +47,13 @@ RUN \
   cd /home/couchdb && \
   git clone http://git-wip-us.apache.org/repos/asf/couchdb.git couchdb.git && \
   cd couchdb.git && \
-  git checkout -b build COUCHDB_COMMIT && \
+  git checkout -b build master && \
+  git checkout COUCHDB_COMMIT && \
 # Expose nodes on external network interface
   sed -i'' 's/bind_address = 127.0.0.1/bind_address = 0.0.0.0/' rel/overlay/etc/default.ini && \
 
 # Build
-  ./configure -p /opt/couchdb && \
+  ./configure --prefix /opt/couchdb --disable-docs && \
   make couch && \
 
 # Install
@@ -59,10 +61,7 @@ RUN \
 
 # Cleanup source
   cd .. && \
-  rm -rf couchdb.git && \
-# Finalize
-  sed -i -e 's/^-name .*$/-name couchdb@server.local/' /opt/couchdb/etc/vm.args
-
+  rm -rf couchdb.git
 
 # Cleanup
 USER root
@@ -75,5 +74,9 @@ RUN apt-get purge -y \
   apt-get autoremove -y
 
 USER couchdb
+# Finalize
+WORKDIR /opt/couchdb
+# Note: vm.args says `-name couchdb` which is incorrect for an Erlang long name.
+RUN sed -i -e 's/^-name .*$/-name couchdb@server.local/' /opt/couchdb/lib/couchdb/etc/vm.args
 EXPOSE 5984 5986
 CMD ["/opt/couchdb/bin/couchdb","-d"]
