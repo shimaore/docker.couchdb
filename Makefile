@@ -1,7 +1,7 @@
-NAME=`jq -r .docker_name package.json`
-TAG=`jq -r .version package.json`
-DEBIAN_VERSION=`jq -r .debian.version package.json`
-COUCHDB_COMMIT=`jq -r .couchdb.commit package.json`
+NAME := $(shell jq -r .docker_name package.json)
+TAG := $(shell jq -r .version package.json)
+DEBIAN_VERSION := $(shell jq -r .debian.version package.json)
+COUCHDB_COMMIT := $(shell jq -r .couchdb.commit package.json)
 
 image: Dockerfile
 	docker build -t ${NAME}:${TAG} .

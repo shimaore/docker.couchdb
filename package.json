@@ -1,12 +1,12 @@
 {
   "name": "docker.couchdb",
   "docker_name": "shimaore/couchdb",
-  "version": "2.0.2",
+  "version": "2.0.0",
   "debian": {
-    "version": "2.0.6"
+    "version": "2.0.11"
   },
   "couchdb": {
-    "commit": "3f7a26c390aaa6498c6f12b22675f6858a5762a9"
+    "commit": "cb02b9b812174609403d67f60c314959388ba06c"
   },
   "description": "A Docker.io image for CouchDB",
   "author": "Stéphane Alnet <stephane@shimaore.net> (http://stephane.shimaore.net/)",
