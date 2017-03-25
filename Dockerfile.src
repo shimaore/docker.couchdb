@@ -9,34 +9,23 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get --no-install-recommends -y install \
   build-essential \
   ca-certificates \
-  curl \
   erlang-base-hipe \
   erlang-dev \
   erlang-nox \
   erlang-reltool \
   git \
+  libcurl4-openssl-dev \
   libicu-dev \
   libmozjs185-dev \
-  nodejs-legacy \
-  npm \
+  pkg-config \
   && \
   apt-get clean && \
-
-# Build rebar
-  useradd -m rebar
-USER rebar
-RUN \
-  cd /home/rebar && \
-  curl -L https://github.com/rebar/rebar/archive/2.5.0.tar.gz | tar zxf - && \
-  cd /home/rebar/rebar-2.5.0 && \
-  ./bootstrap
-USER root
-RUN \
-  cp /home/rebar/rebar-2.5.0/rebar /usr/local/bin/ && \
-  chmod 755 /usr/local/bin/rebar && \
-  userdel rebar && \
-  rm -rf /home/rebar \
-  && \
+  git clone https://github.com/tj/n.git n.git && \
+  cd n.git && \
+  make install && \
+  cd .. && \
+  n 7.0.0 && \
+  rm -r n.git && \
 
 # Build couchdb
   useradd -m -u 9999 couchdb && \
@@ -54,10 +43,10 @@ RUN \
 
 # Build
   ./configure --prefix /opt/couchdb --disable-docs && \
-  make couch && \
+  make release && \
 
 # Install
-  make install && \
+  cp -r rel/couchdb /opt/couchdb && \
 
 # Cleanup source
   cd .. && \
@@ -67,9 +56,7 @@ RUN \
 USER root
 RUN apt-get purge -y \
   build-essential \
-  curl \
   git \
-  erlang-reltool \
   && \
   apt-get autoremove -y
 
@@ -77,6 +64,6 @@ USER couchdb
 # Finalize
 WORKDIR /opt/couchdb
 # Note: vm.args says `-name couchdb` which is incorrect for an Erlang long name.
-RUN sed -i -e 's/^-name .*$/-name couchdb@server.local/' /opt/couchdb/lib/couchdb/etc/vm.args
+# RUN sed -i -e 's/^-name .*$/-name couchdb@server.local/' /opt/couchdb/lib/couchdb/etc/vm.args
 EXPOSE 5984 5986
 CMD ["/opt/couchdb/bin/couchdb","-d"]

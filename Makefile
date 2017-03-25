@@ -5,7 +5,6 @@ COUCHDB_COMMIT := $(shell jq -r .couchdb.commit package.json)
 
 image: Dockerfile
 	docker build -t ${NAME}:${TAG} .
-	docker tag -f ${NAME}:${TAG} ${REGISTRY}/${NAME}:${TAG}
 
 %: %.src
 	sed -e "s/DEBIAN_VERSION/${DEBIAN_VERSION}/" $< | \
