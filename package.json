@@ -2,12 +2,6 @@
   "name": "docker.couchdb",
   "docker_name": "shimaore/couchdb",
   "version": "2.0.0",
-  "debian": {
-    "version": "2.0.11"
-  },
-  "couchdb": {
-    "commit": "cb02b9b812174609403d67f60c314959388ba06c"
-  },
   "description": "A Docker.io image for CouchDB",
   "author": "Stéphane Alnet <stephane@shimaore.net> (http://stephane.shimaore.net/)",
   "license": "Unlicense (http://unlicense.org/)",
